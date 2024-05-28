@@ -16,20 +16,20 @@ async fn handle_request(req: Request<Body>) -> Result<Response<Body>, anyhow::Er
 
         (&Method::POST, "/find_rate") => {
             let post_body = hyper::body::to_bytes(req.into_body()).await?;
-            let mut rate = "0.08".to_string(); // default is 8%
-
             let rates_data: &[u8] = include_bytes!("rates_by_zipcode.csv");
             let mut rdr = Reader::from_reader(rates_data);
             for result in rdr.records() {
                 let record = result?;
                 // dbg!("{:?}", record.clone());
                 if str::from_utf8(&post_body).unwrap().eq(&record[0]) {
-                    rate = record[1].to_string();
-                    break;
+                    let rate = record[1].to_string();
+                    return Ok(Response::new(Body::from(rate)))
                 }
             }
 
-            Ok(Response::new(Body::from(rate)))
+            let mut not_found = Response::default();
+            *not_found.status_mut() = StatusCode::NOT_FOUND;
+            Ok(not_found)
         }
 
         // Return the 404 Not Found for other routes.
