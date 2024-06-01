@@ -51,7 +51,7 @@ jobs:
           echo -e "Execution Fail!"
           exit 1
         fi
-        status=$(curl http://localhost:8001/find_rate -X POST -d "12345" 2>/dev/null | head -1 | cut -d$' ' -f2)
+        status=$(curl -i http://localhost:8001/find_rate -X POST -d "12345" 2>/dev/null | head -1 | cut -d$' ' -f2)
         echo "Status = $status"
         if [[ "$status" == "404" ]]; then
           echo -e "Execution Success!"
